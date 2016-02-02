@@ -23,7 +23,7 @@ object Application extends Controller {
       webClient.setAjaxController(new NicelyResynchronizingAjaxController())
            
       
-        val page:HtmlPage = webClient.getPage("http://www.google.com/")
+        val page:HtmlPage = webClient.getPage("http://demo.dataaccess.eu/weborder")
         val pageAsXml = page.asXml()
         val pageAsText = page.asText()
     Ok("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.getHtmlElementById("viewport"))
