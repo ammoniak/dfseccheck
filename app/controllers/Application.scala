@@ -27,7 +27,7 @@ object Application extends Controller {
         val pageAsXml = page.asXml()
         val pageAsText = page.asText()
     webClient.waitForBackgroundJavaScript(3000)
-    Ok("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.getHtmlElementById("viewport"))
+    Ok("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.getHtmlElementById("viewport").asXml())
   }
 
   def index = Action {
