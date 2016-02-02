@@ -26,6 +26,7 @@ object Application extends Controller {
         val page:HtmlPage = webClient.getPage("http://demo.dataaccess.eu/weborder")
         val pageAsXml = page.asXml()
         val pageAsText = page.asText()
+    webClient.waitForBackgroundJavaScript(3000)
     Ok("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.getHtmlElementById("viewport"))
   }
 
