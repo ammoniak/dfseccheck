@@ -21,7 +21,6 @@ object Application extends Controller {
       //webClient.setJavaScriptEnabled(true);
     webClient.getOptions().setJavaScriptEnabled(true)
       webClient.setAjaxController(new NicelyResynchronizingAjaxController())
-           
       
         val page:HtmlPage = webClient.getPage("http://demo.dataaccess.eu/weborder")
         val pageAsXml = page.asXml()
