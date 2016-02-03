@@ -1,7 +1,8 @@
 package controllers
 
-import com.gargoylesoftware.htmlunit.{BrowserVersion, NicelyResynchronizingAjaxController, WebClient}
-import com.gargoylesoftware.htmlunit.html.HtmlPage
+import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper
+import com.gargoylesoftware.htmlunit._
+import com.gargoylesoftware.htmlunit.html.{DomElement, HtmlPage}
 import play.api._
 import play.api.mvc._
 import play.api.cache.Cache
@@ -9,24 +10,42 @@ import play.api.Play.current
 
 import play.api.db._
 
+import scala.collection.mutable.ListBuffer
+
 object Application extends Controller {
 
 
   def hello = Action{
-    val webClient = new WebClient(BrowserVersion.FIREFOX_38)
-    
+    val webClient = new WebClient()
+
+    val connection = new WebConnectionWrapper(webClient.getWebConnection){
+      val files = new ListBuffer[(String,String,String)]
+      override def getResponse(request: WebRequest): WebResponse = {
+        println(request.getUrl.toString)
+
+        val response = super.getResponse(request)
+        files.+=:(request.getUrl.toString,request.getUrl.getPath,response.getResponseHeaders.toString)
+        response
+      }
+    }
+    webClient.setWebConnection(connection)
+    /*
     webClient.getOptions().setThrowExceptionOnScriptError(false)
     //webClient.setThrowExceptionOnScriptError(false);
     webClient.setJavaScriptTimeout(10000)
       //webClient.setJavaScriptEnabled(true);
     webClient.getOptions().setJavaScriptEnabled(true)
       webClient.setAjaxController(new NicelyResynchronizingAjaxController())
-      
+      */
         val page:HtmlPage = webClient.getPage("http://demo.dataaccess.eu/weborder")
         val pageAsXml = page.asXml()
         val pageAsText = page.asText()
-    webClient.waitForBackgroundJavaScript(3000)
-    Ok("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.getHtmlElementById("viewport").asXml())
+    webClient.waitForBackgroundJavaScript(1000)
+    webClient.getJavaScriptEngine.pumpEventLoop(1000)
+    webClient.waitForBackgroundJavaScript(1000)
+    Thread.sleep(3000)
+    val viewport:DomElement = page.getHtmlElementById("viewport")
+    Ok("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.asXml() + connection.files.toString)
   }
 
   def index = Action {
