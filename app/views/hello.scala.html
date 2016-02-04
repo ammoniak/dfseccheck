@@ -27,12 +27,12 @@
     <div class="row">
         <div class="cold-md-6">
             <table class="table table-condensed table-striped">
-                @for(url <- urls){
                 <tr>
                     <th>URL</th>
                     <th>Path</th>
                     <th>Header</th>
                 </tr>
+                @for(url <- urls){
                 <tr>
                     <td>@url._1</td>
                     <td>@url._2</td>
