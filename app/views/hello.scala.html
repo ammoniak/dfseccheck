@@ -33,7 +33,13 @@
                     <th>Header</th>
                 </tr>
                 @for(url <- urls){
-                <tr>
+                @if(url._3.contains("Web-Service=DataFlex") || url._3.contains("Web-Service=Visual")) {
+                        <tr class="warning">
+                    } else {@if(url._2.contains("DfEngine/df-include.js")) {
+                        <tr class="info">
+                    } else {
+                        <tr>
+                    }}
                     <td>@url._1</td>
                     <td>@url._2</td>
                     <td>@url._3</td>

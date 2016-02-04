@@ -43,7 +43,7 @@ object Application extends Controller {
     webClient.waitForBackgroundJavaScript(1000)
     webClient.getJavaScriptEngine.pumpEventLoop(1000)
     webClient.waitForBackgroundJavaScript(1000)
-    Thread.sleep(3000)
+    Thread.sleep(2000)
     val viewport:DomElement = page.getHtmlElementById("viewport")
     Ok(views.html.hello("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.asXml(), connection.files))
   }
