@@ -47,6 +47,9 @@ object Application extends Controller {
     Thread.sleep(2000)
     val viewport:DomElement = page.getHtmlElementById("viewport")
     Ok(views.html.hello("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.asXml(), connection.files))
+ }
+  def indexForm = Action{
+    Ok("test")
   }
 
   def index = Action {
