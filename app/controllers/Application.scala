@@ -19,12 +19,12 @@ object Application extends Controller {
     val webClient = new WebClient()
 
     val connection = new WebConnectionWrapper(webClient.getWebConnection){
-      val files = new ListBuffer[(String,String,Seq[(String,String)])]
+      val files = new ListBuffer[(String,String,Map[String,String])]
       override def getResponse(request: WebRequest): WebResponse = {
         println(request.getUrl.toString)
 
         val response = super.getResponse(request)
-        val headers:Seq[(String,String)] = response.getResponseHeaders.toList.map(nvp  => (nvp.getName,nvp.getValue))
+        val headers:Map[String,String] = response.getResponseHeaders.toList.map(nvp  => (nvp.getName,nvp.getValue)).toMap
         files.+=:(request.getUrl.toString,request.getUrl.getPath,headers)
         response
       }

@@ -1,4 +1,4 @@
-@(message: String, urls:Seq[(String,String,Seq[(String,String)])])
+@(message: String, urls:Seq[(String,String,Map[String,String])])
 
 @main("Hello DataFlex") {
 
@@ -33,7 +33,7 @@
                     <th>Header</th>
                 </tr>
                 @for(url <- urls){
-                @if(url._3.contains("Web-Service=DataFlex") || url._3.contains("Web-Service=Visual")) {
+                @if(url._3.isDefinedAt("Web-Service") && url._3("Web-Service").contains("DataFlex")) {
                         <tr class="warning">
                     } else {@if(url._2.contains("DfEngine/df-include.js")) {
                         <tr class="info">
