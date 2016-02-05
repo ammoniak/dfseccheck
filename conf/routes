@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
+POST    /				controllers.Application.indexForm
 GET     /hello                           controllers.Application.hello
 GET     /db                         controllers.Application.db
 
