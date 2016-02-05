@@ -7,7 +7,7 @@ import play.api._
 import play.api.mvc._
 import play.api.cache.Cache
 import play.api.Play.current
-
+import collection.JavaConversions._
 import play.api.db._
 
 import scala.collection.mutable.ListBuffer
@@ -19,12 +19,13 @@ object Application extends Controller {
     val webClient = new WebClient()
 
     val connection = new WebConnectionWrapper(webClient.getWebConnection){
-      val files = new ListBuffer[(String,String,String)]
+      val files = new ListBuffer[(String,String,Seq[(String,String)])]
       override def getResponse(request: WebRequest): WebResponse = {
         println(request.getUrl.toString)
 
         val response = super.getResponse(request)
-        files.+=:(request.getUrl.toString,request.getUrl.getPath,response.getResponseHeaders.toString)
+        val headers:Seq[(String,String)] = response.getResponseHeaders.toList.map(nvp  => (nvp.getName,nvp.getValue))
+        files.+=:(request.getUrl.toString,request.getUrl.getPath,headers)
         response
       }
     }

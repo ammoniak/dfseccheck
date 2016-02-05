@@ -1,4 +1,4 @@
-@(message: String, urls:Seq[(String,String,String)])
+@(message: String, urls:Seq[(String,String,Seq[(String,String)])])
 
 @main("Hello DataFlex") {
 
@@ -42,7 +42,13 @@
                     }}
                     <td>@url._1</td>
                     <td>@url._2</td>
-                    <td>@url._3</td>
+                    <td>
+                        <ul>
+                        @for(header <-url._3){
+                        <li><strong>@header._1</strong>: @header._2</li>
+                        }
+                        </ul>
+                    </td>
                 </tr>
                 }
             </table>
