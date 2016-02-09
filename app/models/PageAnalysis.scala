@@ -11,13 +11,43 @@ import collection.JavaConversions._
 /**
   * Created by peanut on 05/02/16.
   */
-class PageAnalysis(val url:String,val pageBeforeJS:String, val pageAfterJS:String, val networkConnections:Seq[Connection]) {
 
+trait DFDheck{
+  val analysis:PageAnalysis
+  def shouldPerformCheck:Boolean
+  def performCheck()
+  def getTitle:String
+  def getDescription:String
+  def getResult:String
+  def POC:String
+}
+
+class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extends DFDheck{
+
+  override def shouldPerformCheck: Boolean = {
+    analysis.networkConnections.exists(con=>con.getPath.contains(".wso"))
+  }
+
+  override def performCheck(): Unit = {
+
+  }
+
+  override def getDescription: String = "Is this WebApp vulnerable to arbitrary code execution?"
+
+  override def getResult: String = "Maybe" //TODO: implement! (1. check if version is vurlnerable, 2. check if public function that is vuln. exists)
+
+  override def getTitle: String = "Arbitrary Code Execution"
+
+  override def POC = ???
+}
+
+class PageAnalysis(val url:String,val pageBeforeJS:String, val pageAfterJS:String, val networkConnections:Seq[Connection]) {
+  def performChecks(): Unit ={
+
+  }
 }
 object PageAnalysis{
   def getAnalysis(url:String):PageAnalysis={
-
-
 
     val webClient = new WebClient()
 
@@ -30,9 +60,9 @@ object PageAnalysis{
       }
     }
     webClient.setWebConnection(connection)
+    webClient.getOptions.setThrowExceptionOnFailingStatusCode(false)
+    webClient.getOptions.setThrowExceptionOnScriptError(false)
     /*
-    webClient.getOptions().setThrowExceptionOnScriptError(false)
-    //webClient.setThrowExceptionOnScriptError(false);
     webClient.setJavaScriptTimeout(10000)
       //webClient.setJavaScriptEnabled(true);
     webClient.getOptions().setJavaScriptEnabled(true)
