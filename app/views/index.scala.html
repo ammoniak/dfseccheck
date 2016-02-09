@@ -1,4 +1,4 @@
-@(message: String)
+@(message: String,searchForm:Form[Application.SearchParameters])(implicit messages: Messages)
 
 @main("GettingStarted") {
 
@@ -19,10 +19,9 @@
     @message
   </div>
   }
-  <form method="POST" action="@routes.Application.indexForm()" >
-	  <input name="url" value="http://demo.dataaccess.eu/weborder/">
-	  <button name="submit">Check!</button>
-  </form>
+  @helper.form(action = routes.Application.indexForm()) {
+  @helper.inputText(searchForm("url"))
+  }
   <div class="alert alert-info text-center" role="alert">
     To deploy your own copy, and learn the fundamentals of the Heroku platform, head over to the <a href="https://devcenter.heroku.com/articles/getting-started-with-scala" class="alert-link">Getting Started with Scala/Play on Heroku</a> tutorial.
   </div>

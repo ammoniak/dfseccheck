@@ -1,4 +1,4 @@
-@(message: String, urls:Seq[(String,String,Map[String,String])])
+@(analysis:models.PageAnalysis)
 
 @main("Hello DataFlex") {
 
@@ -14,37 +14,52 @@
   </div>
 </div>
 <div class="container">
-  @if(message != null){
-  <div class="alert alert-success text-center" role="alert">
-    @message
-  </div>
-  }
+    <h2>Before executing JavaScript</h2>
+    <div class="row">
+        <div class="cold-md-6">
+        <pre class="pre-scrollable">
+            @analysis.pageBeforeJS
+        </pre>
+        </div>
+    </div>
+
+    <h2>After executing JavaScript</h2>
+    <div class="row">
+        <div class="cold-md-6">
+        <pre class="pre-scrollable">
+            @analysis.pageAfterJS
+        </pre>
+    </div>
+</div>
   <!--
   <div class="alert alert-info text-center" role="alert">
     To deploy your own copy, and learn the fundamentals of the Heroku platform, head over to the <a href="https://devcenter.heroku.com/articles/getting-started-with-scala" class="alert-link">Getting Started with Scala/Play on Heroku</a> tutorial.
   </div> -->
   <hr>
+    <h2>Network Connections</h2>
     <div class="row">
         <div class="cold-md-6">
             <table class="table table-condensed table-striped">
                 <tr>
                     <th>URL</th>
+                    <th>Status</th>
                     <th>Path</th>
                     <th>Header</th>
                 </tr>
-                @for(url <- urls){
-                @if(url._3.isDefinedAt("Web-Service") && url._3("Web-Service").contains("DataFlex")) {
+                @for(connection <- analysis.networkConnections){
+                @if(connection.getHeader.isDefinedAt("Web-Service") && connection.getHeader("Web-Service").contains("DataFlex")) {
                         <tr class="warning">
-                    } else {@if(url._2.contains("DfEngine/df-include.js")) {
+                    } else {@if(connection.getPath.contains("DfEngine/df-include.js") || connection.getPath.contains("ElectosFileStreaming.asp")) {
                         <tr class="info">
                     } else {
                         <tr>
                     }}
-                    <td>@url._1</td>
-                    <td>@url._2</td>
+                    <td>@connection.getUrl</td>
+                    <td>@connection.getStatus</td>
+                    <td>@connection.getPath</td>
                     <td>
                         <ul>
-                        @for(header <-url._3){
+                        @for(header <-connection.getHeader){
                         <li><strong>@header._1</strong>: @header._2</li>
                         }
                         </ul>

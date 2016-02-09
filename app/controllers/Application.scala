@@ -3,7 +3,10 @@ package controllers
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper
 import com.gargoylesoftware.htmlunit._
 import com.gargoylesoftware.htmlunit.html.{DomElement, HtmlPage}
+import models.PageAnalysis
 import play.api._
+import play.api.data._
+import play.api.data.Forms._
 import play.api.mvc._
 import play.api.cache.Cache
 import play.api.Play.current
@@ -12,48 +15,41 @@ import play.api.db._
 
 import scala.collection.mutable.ListBuffer
 
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
+
 object Application extends Controller {
 
 
-  def hello = Action{
-    val webClient = new WebClient()
-
-    val connection = new WebConnectionWrapper(webClient.getWebConnection){
-      val files = new ListBuffer[(String,String,Map[String,String])]
-      override def getResponse(request: WebRequest): WebResponse = {
-        println(request.getUrl.toString)
-
-        val response = super.getResponse(request)
-        val headers:Map[String,String] = response.getResponseHeaders.toList.map(nvp  => (nvp.getName,nvp.getValue)).toMap
-        files.+=:(request.getUrl.toString,request.getUrl.getPath,headers)
-        response
-      }
-    }
-    webClient.setWebConnection(connection)
-    /*
-    webClient.getOptions().setThrowExceptionOnScriptError(false)
-    //webClient.setThrowExceptionOnScriptError(false);
-    webClient.setJavaScriptTimeout(10000)
-      //webClient.setJavaScriptEnabled(true);
-    webClient.getOptions().setJavaScriptEnabled(true)
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController())
-      */
-        val page:HtmlPage = webClient.getPage("http://demo.dataaccess.eu/weborder")
-        val pageAsXml = page.asXml()
-        val pageAsText = page.asText()
-    webClient.waitForBackgroundJavaScript(1000)
-    webClient.getJavaScriptEngine.pumpEventLoop(1000)
-    webClient.waitForBackgroundJavaScript(1000)
-    Thread.sleep(2000)
-    val viewport:DomElement = page.getHtmlElementById("viewport")
-    Ok(views.html.hello("test" +pageAsXml + "<br><br>"+ pageAsXml +"<br><br>" + page.asXml(), connection.files))
+  def hello(url:String) = Action{
+    val analysis = PageAnalysis.getAnalysis(url)
+    //val viewport:DomElement = page.getHtmlElementById("viewport")
+    Ok(views.html.hello(analysis))
  }
-  def indexForm = Action{
-    Ok("test")
+  case class SearchParameters(url:String){
+  }
+  val searchForm = Form(
+    mapping(
+      "url" -> text
+    )(SearchParameters.apply)(SearchParameters.unapply)
+  )
+
+
+  def indexForm = Action{implicit request =>
+    searchForm.bindFromRequest.fold(
+      formWithErrors => {
+        // binding failure, you retrieve the form containing errors:
+        BadRequest(views.html.index(null,formWithErrors))
+      },
+      userData => {
+        /* binding success, you get the actual value. */
+        Redirect(routes.Application.hello(userData.url))
+      }
+    )
   }
 
   def index = Action {
-    Ok(views.html.index(null))
+    Ok(views.html.index(null,searchForm.fill(SearchParameters("http://demo.dataaccess.eu/WebOrder/"))))
   }
 
   def db = Action {
