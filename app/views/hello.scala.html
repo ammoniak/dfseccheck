@@ -13,6 +13,16 @@
 </div>
 <div class="container">
     <h1>Results for @analysis.url</h1>
+    <h2>Checks</h2>
+    <table  class="table table-condensed table-striped">
+    @for(check <- analysis.getResults){
+    <tr>
+        <td>@check._1</td>
+        <td>@check._2</td>
+        <td>@check._3</td>
+    </tr>
+    }
+    </table>
     <h2>Before executing JavaScript</h2>
     <div class="row">
         <div class="cold-md-6">

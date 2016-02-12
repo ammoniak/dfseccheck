@@ -4,6 +4,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage
 import com.gargoylesoftware.htmlunit.{WebResponse, WebRequest, WebClient}
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 import collection.JavaConversions._
@@ -19,7 +20,7 @@ trait DFDheck{
   def getTitle:String
   def getDescription:String
   def getResult:String
-  def POC:String
+  def POC:String = ???
 }
 
 class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extends DFDheck{
@@ -27,23 +28,35 @@ class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extend
   override def shouldPerformCheck: Boolean = {
     analysis.networkConnections.exists(con=>con.getPath.contains(".wso"))
   }
-
+  val dfVersion = analysis.networkConnections.find(_.getPath.contains(".wso")) match {
+    case Some(connection) => connection.getHeader.getOrElse("WebService","0")
+    case _ => "0"
+  }
   override def performCheck(): Unit = {
 
   }
 
   override def getDescription: String = "Is this WebApp vulnerable to arbitrary code execution?"
 
-  override def getResult: String = "Maybe" //TODO: implement! (1. check if version is vurlnerable, 2. check if public function that is vuln. exists)
+  override def getResult: String =  dfVersion.toFloat match{
+    case version if version> 0 && version < 18.0 => "Vulnerable"
+    case _ => "Ok"
+  } //TODO: implement! (1. check if version is vurlnerable, 2. check if public function that is vuln. exists)
 
   override def getTitle: String = "Arbitrary Code Execution"
 
-  override def POC = ???
 }
 
 class PageAnalysis(val url:String,val pageBeforeJS:String, val pageAfterJS:String, val networkConnections:Seq[Connection]) {
+  val checks = new mutable.ListBuffer[DFDheck]
+  checks += new WSOArbitraryCodeExecutionCheck(this)
   def performChecks(): Unit ={
-
+    checks.foreach(_.performCheck())
+  }
+  def getResults={
+    //TODO: make it lazy, etc
+    performChecks()
+    checks.map(check => (check.getTitle,check.getDescription,check.getResult) )
   }
 }
 object PageAnalysis{
