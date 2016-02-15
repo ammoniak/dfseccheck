@@ -1,10 +1,21 @@
 package models
 
+import models.State.State
+
+
 /**
   * Created by peanut on 05/02/16.
   */
 
-trait DFDheck{
+
+object State extends Enumeration{
+  type State = Value
+  val Okay = Value("Okay")
+  val Info = Value("Info")
+  val Warn = Value("Warn")
+  val Danger = Value("Danger")
+}
+trait DFCheck{
   val analysis:PageAnalysis
   def shouldPerformCheck:Boolean
   def performCheck()
@@ -12,49 +23,49 @@ trait DFDheck{
   def getDescription:String
   def getResult:String
   def POC:String = ???
+  def getState:State.State
+
 }
 
 
-class ElectosDefaultLoginCheck(override val analysis:PageAnalysis)    extends DFDheck{
+class ElectosDefaultLoginCheck(override val analysis:PageAnalysis)    extends DFCheck{
   override def shouldPerformCheck: Boolean = {
     analysis.pageBeforeJS.contains("ElectosStyles") || analysis.pageAfterJS.contains("ElectosStyles")
   }
   var hasDefaultElectosPassword=false
-  var hasElectosAccessible = false
   override def performCheck(): Unit = {
 
     val electosUrl = analysis.url +"/Electos/"
     val electosAnalysis = PageAnalysis.getAnalysis(electosUrl)
-    if (electosAnalysis.pageBeforeJS.contains("<form action=\"default.asp\" method=\"post\" id=\"login\">")) hasElectosAccessible = true
     if (electosAnalysis.pageBeforeJS.contains("The default user account (username:admin, password:admin) ")) hasDefaultElectosPassword = true
 
   }
-
+//TODO: change title/descripption for all testcases!
   override def getDescription: String = "Has the default login been changed?"
 
   override def getResult: String = {
-    var result=""
-    if (hasDefaultElectosPassword) result += " Default password for Electos login is set"
-    if (hasElectosAccessible) result += " Default Electos Studio is accessible"
-    if (result.isEmpty) result = "Okay"
-    result
+    if (hasDefaultElectosPassword) "Default password for Electos login is set"
+    else "Okay"
   }
 
   override def getTitle: String = "Check for default login"
+
+  override def getState = {
+    if (hasDefaultElectosPassword) State.Danger
+    else State.Okay
+  }
 }
 
 
-class SitemanagerDefaultLoginCheck(override val analysis:PageAnalysis)    extends DFDheck{
+class SitemanagerDefaultLoginCheck(override val analysis:PageAnalysis)    extends DFCheck{
   override def shouldPerformCheck: Boolean = {
     analysis.pageBeforeJS.contains("ElectosStyles") || analysis.pageAfterJS.contains("ElectosStyles")
   }
   var hasDefaultSitemanagerPassword=false
-  var hasSitemanagerAccessible = false
   override def performCheck(): Unit = {
 
     val sitemanagerUrl = analysis.url +"/SiteManager/"
     val sitemanagerAnalysis = PageAnalysis.getAnalysis(sitemanagerUrl)
-    if (sitemanagerAnalysis.pageBeforeJS.contains("<form action=\"default.asp\" method=\"post\" id=\"login\">")) hasSitemanagerAccessible = true
     if (sitemanagerAnalysis.pageBeforeJS.contains("The default user account (username:admin, password:admin) ")) hasDefaultSitemanagerPassword = true
     println(sitemanagerAnalysis.pageBeforeJS)
 
@@ -63,17 +74,19 @@ class SitemanagerDefaultLoginCheck(override val analysis:PageAnalysis)    extend
   override def getDescription: String = "Has the default login been changed?"
 
   override def getResult: String = {
-    var result=""
-    if (hasDefaultSitemanagerPassword) result += " Default password for Sitemanager login is set"
-    if (hasSitemanagerAccessible) result += " Sitemanager is accessible"
-    if (result.isEmpty) result = "Okay"
-    result
+    if (hasDefaultSitemanagerPassword) "Default password for Sitemanager login is set"
+    else "Okay"
   }
 
   override def getTitle: String = "Check for default login"
+
+  override def getState = {
+    if (hasDefaultSitemanagerPassword) State.Danger
+    else State.Okay
+  }
 }
 
-class ElectosStudioAccessible(override val analysis:PageAnalysis)    extends DFDheck{
+class ElectosStudioAccessible(override val analysis:PageAnalysis)    extends DFCheck{
   override def shouldPerformCheck: Boolean = {
     analysis.pageBeforeJS.contains("ElectosStyles") || analysis.pageAfterJS.contains("ElectosStyles")
   }
@@ -94,10 +107,14 @@ class ElectosStudioAccessible(override val analysis:PageAnalysis)    extends DFD
   }
 
   override def getTitle: String = "Check for default login"
+  override def getState = {
+    if (hasElectosAccessible) State.Warn
+    else State.Okay
+  }
 }
 
 
-class SitemanagerAccessible(override val analysis:PageAnalysis)    extends DFDheck{
+class SitemanagerAccessible(override val analysis:PageAnalysis)    extends DFCheck{
   override def shouldPerformCheck: Boolean = {
     analysis.pageBeforeJS.contains("ElectosStyles") || analysis.pageAfterJS.contains("ElectosStyles")
   }
@@ -119,9 +136,14 @@ class SitemanagerAccessible(override val analysis:PageAnalysis)    extends DFDhe
   }
 
   override def getTitle: String = "Check for default login"
+
+  override def getState = {
+    if (hasSitemanagerAccessible) State.Warn
+    else State.Okay
+  }
 }
 
-class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extends DFDheck{
+class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extends DFCheck{
 
   override def shouldPerformCheck: Boolean = {
     analysis.networkConnections.exists(con=>con.getPath.contains(".wso"))
@@ -142,5 +164,9 @@ class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extend
   } //TODO: implement! (1. check if version is vurlnerable, 2. check if public function that is vuln. exists)
 
   override def getTitle: String = "Arbitrary Code Execution"
+  override def getState = {
+    if (dfVersion.toFloat<18.0) State.Danger
+    else State.Okay
+  }
 
 }

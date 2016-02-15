@@ -13,7 +13,7 @@ import collection.JavaConversions._
 
 
 class PageAnalysis(val url:String,val pageBeforeJS:String, val pageAfterJS:String, val networkConnections:Seq[Connection]) {
-  val checks = new mutable.ListBuffer[DFDheck]
+  val checks = new mutable.ListBuffer[DFCheck]
   checks += new WSOArbitraryCodeExecutionCheck(this)
   checks += new ElectosDefaultLoginCheck(this)
   checks += new ElectosStudioAccessible(this)
@@ -25,7 +25,7 @@ class PageAnalysis(val url:String,val pageBeforeJS:String, val pageAfterJS:Strin
   def getResults={
     //TODO: make it lazy, etc
     performChecks()
-    checks.filter(_.shouldPerformCheck).map(check => (check.getTitle,check.getDescription,check.getResult) )
+    checks.filter(_.shouldPerformCheck).map(check => check )
   }
 }
 object PageAnalysis{
