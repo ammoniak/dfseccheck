@@ -41,14 +41,14 @@ class ElectosDefaultLoginCheck(override val analysis:PageAnalysis)    extends DF
 
   }
 //TODO: change title/descripption for all testcases!
-  override def getDescription: String = "Has the default login been changed?"
+  override def getDescription: String = "Has the default login of the Electos Studio been changed?"
 
   override def getResult: String = {
     if (hasDefaultElectosPassword) "Default password for Electos login is set"
     else "Okay"
   }
 
-  override def getTitle: String = "Check for default login"
+  override def getTitle: String = "Check for default login (Electos Studio)"
 
   override def getState = {
     if (hasDefaultElectosPassword) State.Danger
@@ -67,18 +67,17 @@ class SitemanagerDefaultLoginCheck(override val analysis:PageAnalysis)    extend
     val sitemanagerUrl = analysis.url +"/SiteManager/"
     val sitemanagerAnalysis = PageAnalysis.getAnalysis(sitemanagerUrl)
     if (sitemanagerAnalysis.pageBeforeJS.contains("The default user account (username:admin, password:admin) ")) hasDefaultSitemanagerPassword = true
-    println(sitemanagerAnalysis.pageBeforeJS)
 
   }
 
-  override def getDescription: String = "Has the default login been changed?"
+  override def getDescription: String = "Has the default login of the sitemanager been changed?"
 
   override def getResult: String = {
-    if (hasDefaultSitemanagerPassword) "Default password for Sitemanager login is set"
+    if (hasDefaultSitemanagerPassword) "Password for Sitemanager is still on default value!"
     else "Okay"
   }
 
-  override def getTitle: String = "Check for default login"
+  override def getTitle: String = "Electos Sitemanger default password?"
 
   override def getState = {
     if (hasDefaultSitemanagerPassword) State.Danger
@@ -99,14 +98,14 @@ class ElectosStudioAccessible(override val analysis:PageAnalysis)    extends DFC
 
   }
 
-  override def getDescription: String = "Has the default login been changed?"
+  override def getDescription: String = "Electos Studio for the default website is public accessible?"
 
   override def getResult: String = {
-    if (hasElectosAccessible)" Default Electos Studio is accessible"
-    else "Default Electos Studio is not accessible"
+    if (hasElectosAccessible)"Electos Studio is accessible"
+    else "Electos Studio is not accessible"
   }
 
-  override def getTitle: String = "Check for default login"
+  override def getTitle: String = "Electos Studio accessible?"
   override def getState = {
     if (hasElectosAccessible) State.Warn
     else State.Okay
@@ -124,18 +123,17 @@ class SitemanagerAccessible(override val analysis:PageAnalysis)    extends DFChe
     val sitemanagerUrl = analysis.url +"/SiteManager/"
     val sitemanagerAnalysis = PageAnalysis.getAnalysis(sitemanagerUrl)
     if (sitemanagerAnalysis.pageBeforeJS.contains("<form action=\"default.asp\" method=\"post\" id=\"login\">")) hasSitemanagerAccessible = true
-    println(sitemanagerAnalysis.pageBeforeJS)
 
   }
 
-  override def getDescription: String = "Has the default login been changed?"
+  override def getDescription: String = "Sitemanager is public accessible?"
 
   override def getResult: String = {
     if (hasSitemanagerAccessible)  "Sitemanager is accessible"
     else "Sitemanager is not accessible"
   }
 
-  override def getTitle: String = "Check for default login"
+  override def getTitle: String = "Sitemanager accessible?"
 
   override def getState = {
     if (hasSitemanagerAccessible) State.Warn
@@ -149,7 +147,7 @@ class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extend
     analysis.networkConnections.exists(con=>con.getPath.contains(".wso"))
   }
   val dfVersion = analysis.networkConnections.find(_.getPath.contains(".wso")) match {
-    case Some(connection) => connection.getHeader.getOrElse("WebService","0")
+    case Some(connection) => connection.getHeader.getOrElse("Web-Service","0")
     case _ => "0"
   }
   override def performCheck(): Unit = {
@@ -157,7 +155,7 @@ class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extend
 
   override def getDescription: String = "Is this WebApp vulnerable to arbitrary code execution?"
 
-  override def getResult: String =  dfVersion.toFloat match{
+  override def getResult: String =  dfVersion.replace("Visual","").replace("Data","").replace("Flex","").trim.toFloat match{
     case version if version> 0 && version < 18.0 => "Vulnerable"
     case 0 => "Unknown"
     case _ => "Ok"
@@ -165,7 +163,7 @@ class WSOArbitraryCodeExecutionCheck(override val analysis: PageAnalysis) extend
 
   override def getTitle: String = "Arbitrary Code Execution"
   override def getState = {
-    if (dfVersion.toFloat<18.0) State.Danger
+    if (dfVersion.replace("Visual","").replace("Data","").replace("Flex","").trim.toFloat<18.0) State.Danger
     else State.Okay
   }
 
