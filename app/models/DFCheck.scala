@@ -40,7 +40,6 @@ class ElectosDefaultLoginCheck(override val analysis:PageAnalysis)    extends DF
     if (electosAnalysis.pageBeforeJS.contains("The default user account (username:admin, password:admin) ")) hasDefaultElectosPassword = true
 
   }
-//TODO: change title/descripption for all testcases!
   override def getDescription: String = "Has the default login been changed?"
 
   override def getResult: String = {
