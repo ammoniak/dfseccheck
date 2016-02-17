@@ -1,4 +1,4 @@
-@(message: String,searchForm:Form[Application.SearchParameters])(implicit messages: Messages)
+@(message: String,searchForm:Form[Application.SearchParameters],loginForm:Form[Application.LoginParameters])(implicit messages: Messages)
 
 @main("GettingStarted") {
 
@@ -19,10 +19,21 @@
     @message
   </div>
   }
-  @helper.form(action = routes.Application.indexForm()) {
-  @helper.inputText(searchForm("url"),'class->"form-control")
-  <button>Check site!</button>
-  }
+
+  <div class="row">
+    <div class="col-md-8">
+    @helper.form(action = routes.Application.indexForm()) {
+    @helper.inputText(searchForm("url"),'class->"form-control",'_label->"Check page")
+    <button>Check site!</button>
+    }
+    </div>
+    <div class="col-md-4">
+    @helper.form(action = routes.Application.login()) {
+    @helper.inputText(loginForm("otp"),'class->"form-control",'_label->"Login with OTP")
+    <button>Login!</button>
+    }
+    </div>
+  </div>
   <div class="alert alert-info text-center" role="alert">
     <h2>Examples:</h2>
     <ul>

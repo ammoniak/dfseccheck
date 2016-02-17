@@ -5,6 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 POST    /				controllers.Application.indexForm
+POST    /otp            controllers.Application.login
 GET     /hello                           controllers.Application.hello(url)
 GET     /db                         controllers.Application.db
 
