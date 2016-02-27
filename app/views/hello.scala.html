@@ -12,6 +12,7 @@
   </div>
 </div>
 <div class="container">
+    <div class="row">
     <h1>Results for @analysis.url</h1>
     <h2>Checks</h2>
     <table  class="table table-condensed table-striped">
@@ -28,18 +29,18 @@
     </tr>
     }
     </table>
-    <h2>Before executing JavaScript</h2>
+        </div>
     <div class="row">
-        <div class="cold-md-6">
+        <div class="col-md-6">
+
+            <h2>Before executing JavaScript</h2>
         <pre class="pre-scrollable">
 @analysis.pageBeforeJS
         </pre>
         </div>
-    </div>
+        <div class="col-md-6">
 
-    <h2>After executing JavaScript</h2>
-    <div class="row">
-        <div class="cold-md-6">
+            <h2>After executing JavaScript</h2>
         <pre class="pre-scrollable">
 @analysis.pageAfterJS
         </pre>
@@ -54,12 +55,14 @@
     <div class="row">
         <div class="cold-md-6">
             <table class="table table-condensed table-striped">
+                <thead>
                 <tr>
-                    <th>URL</th>
-                    <th>Status</th>
-                    <th>Path</th>
-                    <th>Header</th>
+                    <th class="col-md-6">URL</th>
+                    <th class="col-md-1">Status</th>
+                    <th class="col-md-1">Path</th>
+                    <th class="col-md-4">Header</th>
                 </tr>
+                </thead>
                 @for(connection <- analysis.networkConnections){
                 @if(connection.getHeader.isDefinedAt("Web-Service") && connection.getHeader("Web-Service").contains("DataFlex")) {
                         <tr class="warning">

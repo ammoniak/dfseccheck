@@ -95,6 +95,7 @@ class ElectosStudioAccessible(override val analysis:PageAnalysis)    extends DFC
     val electosUrl = analysis.url +"/Electos/"
     val electosAnalysis = PageAnalysis.getAnalysis(electosUrl)
     if (electosAnalysis.pageBeforeJS.contains("<form action=\"default.asp\" method=\"post\" id=\"login\">")) hasElectosAccessible = true
+    if (electosAnalysis.networkConnections.head.getStatus == 200) hasElectosAccessible = true
 
   }
 
@@ -123,6 +124,8 @@ class SitemanagerAccessible(override val analysis:PageAnalysis)    extends DFChe
     val sitemanagerUrl = analysis.url +"/SiteManager/"
     val sitemanagerAnalysis = PageAnalysis.getAnalysis(sitemanagerUrl)
     if (sitemanagerAnalysis.pageBeforeJS.contains("<form action=\"default.asp\" method=\"post\" id=\"login\">")) hasSitemanagerAccessible = true
+    if (sitemanagerAnalysis.networkConnections.head.getStatus == 200) hasSitemanagerAccessible = true
+
 
   }
 
