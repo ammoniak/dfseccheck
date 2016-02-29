@@ -9,6 +9,7 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= Seq(
   jdbc,
   cache,
+  evolutions,
   "org.postgresql" % "postgresql" % "9.4-1201-jdbc41",
   ws,
   "net.sourceforge.htmlunit" % "htmlunit" % "2.19",
