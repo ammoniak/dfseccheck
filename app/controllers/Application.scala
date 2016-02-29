@@ -34,7 +34,8 @@ object Application extends Controller {
 
         // otp is the OTP from the YubiKey
         try {val response = client.verify(loginData.otp)
-        Ok("OTP ok=: " + response.isOk() + " "  + response.getPublicId)
+        val msg = "OTP isOk=" + response.isOk() + " publicID="  + response.getPublicId +  " "  + response.getSessioncounter
+          Ok(views.html.index(msg,searchForm,loginForm))
         } catch {
           case e:IllegalArgumentException => BadRequest(views.html.index(null,searchForm.fill(SearchParameters("http://demo.dataaccess.eu/WebOrder/")),loginForm))
         }
