@@ -3,7 +3,7 @@
 # --- !Ups
 
 CREATE TABLE "useraccount" (
-    "id" int(20) NOT NULL,
+    "id" bigint(20) NOT NULL,
     "email" varchar(255) NOT NULL,
     "pw" varchar(255) NOT NULL,
     "fullname" varchar(255) NOT NULL
