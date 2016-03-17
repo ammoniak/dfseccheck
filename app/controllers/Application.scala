@@ -1,20 +1,13 @@
 package controllers
 
-import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper
-import com.gargoylesoftware.htmlunit._
-import com.gargoylesoftware.htmlunit.html.{DomElement, HtmlPage}
 import com.yubico.client.v2.YubicoClient
 import models.PageAnalysis
-import play.api._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc._
-import play.api.cache.Cache
 import play.api.Play.current
 import collection.JavaConversions._
 import play.api.db._
-
-import scala.collection.mutable.ListBuffer
 
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
@@ -34,8 +27,37 @@ object Application extends Controller {
 
         // otp is the OTP from the YubiKey
         try {val response = client.verify(loginData.otp)
-        val msg = "OTP isOk=" + response.isOk() + " publicID="  + response.getPublicId +  " "  + response.getSessioncounter
-          Ok(views.html.index(msg,searchForm,loginForm))
+        //val msg = "OTP isOk=" + response.isOk + " publicID="  + response.getPublicId +  " "  + response.getSessioncounter
+        var out = ""
+        val conn = DB.getConnection()
+        try {
+          //val stmt = conn.createStatement
+          //stmt.executeUpdate("INSERT INTO ticks VALUES (now())")
+          //stmt.executeUpdate("INSERT INTO useraccount () VALUES (now())")
+          if (response.isOk) {
+
+            val prep = conn.prepareStatement("SELECT * FROM useraccount WHERE id = ?")
+            prep.setString(1, response.getPublicId)
+            val rs = prep.executeQuery()
+
+            if (!rs.isBeforeFirst && response.isOk) {
+              val ins = conn.prepareStatement("INSERT INTO useraccount (id,email,fullname) VALUES (?,?,?)")
+              ins.setString(1, response.getPublicId)
+              ins.setString(2, "test@esheep.ch")
+              ins.setString(3, "RTH")
+              ins.execute()
+            }
+            while (rs.next) {
+              out += "Read from DB: " + rs.getString("id") + "\n"
+            }
+
+            println(out)
+          }
+        } finally {
+          conn.close()
+        }
+          //Ok(views.html.index(msg,searchForm,loginForm)).withSession(request.session + ("public_id"->response.getPublicId))
+          Redirect(routes.Application.index()).withSession(request.session + ("public_id"->response.getPublicId))
         } catch {
           case e:IllegalArgumentException => BadRequest(views.html.index(null,searchForm.fill(SearchParameters("http://demo.dataaccess.eu/WebOrder/")),loginForm))
         }
